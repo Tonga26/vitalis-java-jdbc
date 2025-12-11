@@ -11,7 +11,7 @@
 
 ## 📖 About the Project
 
-**Vitalis** is a robust console-based application designed to manage patients and medical records for a fictional clinic. 
+**Vitalis** is a robust console-based application designed to manage patients and medical records for a fictional clinic.
 
 The primary goal of this project is to implement a **Layered Architecture** without relying on high-level frameworks like Hibernate or Spring Data initially. This approach ensures a deep understanding of:
 - **JDBC (Java Database Connectivity)** for raw SQL execution.
