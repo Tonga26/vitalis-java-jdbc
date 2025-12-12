@@ -35,7 +35,7 @@ public class Paciente extends EntidadBase {
      * @param fechaNacimiento Fecha de nacimiento.
      */
     public Paciente(String nombre, String apellido, String dni, LocalDate fechaNacimiento) {
-        super(); // Inicializa eliminado = false
+        super();
         this.nombre = nombre;
         this.apellido = apellido;
         this.dni = dni;
@@ -53,7 +53,7 @@ public class Paciente extends EntidadBase {
      * @param fechaNacimiento Fecha de nacimiento.
      */
     public Paciente(Long id, boolean eliminado, String nombre, String apellido, String dni, LocalDate fechaNacimiento) {
-        super(id, eliminado); // Pasa los datos de control al padre
+        super(id, eliminado);
         this.nombre = nombre;
         this.apellido = apellido;
         this.dni = dni;
@@ -141,8 +141,6 @@ public class Paciente extends EntidadBase {
      */
     @Override
     public String toString() {
-        // OJO: Asegúrate de crear el método .brief() en tu clase HistoriaClinica
-        // o cambiar esta línea si ese método no existe aún.
         String historiaInfo = (historiaClinica != null) ? historiaClinica.toString() : "null";
 
         return "Paciente{" +
