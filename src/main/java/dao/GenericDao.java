@@ -31,7 +31,7 @@ public interface GenericDao<T> {
      * @return Un {@link Optional} que contiene la entidad si existe, o vacío si no.
      * @throws SQLException Si ocurre un error de consulta.
      */
-    Optional<T> getById(Long id) throws SQLException;
+    Optional<T> findById(Long id) throws SQLException;
 
     /**
      * Recupera todos los registros de la tabla correspondiente.
