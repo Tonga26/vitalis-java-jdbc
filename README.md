@@ -73,7 +73,7 @@ To run this project locally, you need to configure the database credentials.
 
 # 🏥 Vitalis - Sistema de Gestión de Clínicas (Versión en Español)
 
-![Java](https://img.shields.io/badge/Java-17%2B-orange)
+![Java](https://img.shields.io/badge/Java-25-orange)
 ![Database](https://img.shields.io/badge/MySQL-8.0-blue)
 ![Estado](https://img.shields.io/badge/Estado-En%20Desarrollo-yellow)
 ![Licencia](https://img.shields.io/badge/Licencia-MIT-green)
