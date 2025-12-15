@@ -8,15 +8,42 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementación concreta del DAO para la entidad {@link Paciente} utilizando JDBC.
+ * <p>
+ * Características principales de esta implementación:
+ * <ul>
+ * <li><b>Inyección de Dependencias:</b> Recibe la conexión por constructor, delegando la gestión del ciclo de vida a la capa de Servicio.</li>
+ * <li><b>Carga Ansiosa (Eager Loading):</b> Los métodos de lectura utilizan {@code LEFT JOIN} para recuperar el Paciente y su Historia Clínica en una sola consulta.</li>
+ * <li><b>Baja Lógica (Soft Delete):</b> Los borrados actualizan el campo {@code eliminado} en lugar de borrar el registro físico.</li>
+ * </ul>
+ * </p>
+ */
 public class PacienteDaoImpl implements PacienteDao {
 
     private final Connection conn;
 
+    /**
+     * Constructor que inyecta la conexión a base de datos.
+     *
+     * @param conn La conexión JDBC activa y gestionada externamente.
+     */
     public PacienteDaoImpl(Connection conn) {
         this.conn = conn;
     }
 
-    private Paciente map(ResultSet rs) throws SQLException{
+    /**
+     * Mapea una fila del {@link ResultSet} a un objeto {@link Paciente}.
+     * <p>
+     * Este método es capaz de detectar si el ResultSet incluye columnas de {@link HistoriaClinica}
+     * (gracias al JOIN) y poblar el objeto anidado si existe.
+     * </p>
+     *
+     * @param rs El conjunto de resultados posicionado en la fila actual.
+     * @return El objeto Paciente hidratado.
+     * @throws SQLException Si ocurre un error al leer las columnas.
+     */
+    private Paciente map(ResultSet rs) throws SQLException {
         Paciente p = new Paciente();
         p.setId(rs.getLong("id"));
         p.setEliminado(rs.getBoolean("eliminado"));
@@ -26,10 +53,10 @@ public class PacienteDaoImpl implements PacienteDao {
         java.sql.Date f = rs.getDate("fecha_nacimiento");
         p.setFechaNacimiento(f != null ? f.toLocalDate() : null);
 
-        long hcId =rs.getLong("hc_id");
+        long hcId = rs.getLong("hc_id");
 
         if (hcId > 0){
-            HistoriaClinica h =new HistoriaClinica();
+            HistoriaClinica h = new HistoriaClinica();
             h.setId(hcId);
             h.setEliminado(rs.getBoolean("hc_eliminado"));
             h.setNroHistoria(rs.getString("nro_historia"));
@@ -41,13 +68,20 @@ public class PacienteDaoImpl implements PacienteDao {
             java.sql.Date fa = rs.getDate("hc_fecha_apertura");
             h.setFechaApertura(fa != null ? fa.toLocalDate() : null);
 
-            p.setHistoriaClinica(h); // asigna la historia clinica al paciente
+            p.setHistoriaClinica(h);
         }
 
         return p;
-
     }
 
+    /**
+     * Inserta un nuevo paciente en la base de datos.
+     * Recupera y asigna la clave primaria generada (ID) al objeto pasado por parámetro.
+     *
+     * @param p El paciente a persistir.
+     * @return El mismo objeto paciente con su ID actualizado.
+     * @throws SQLException Si ocurre un error durante la inserción.
+     */
     @Override
     public Paciente create(Paciente p) throws SQLException {
         String sql = "INSERT INTO paciente (eliminado, dni, nombre, apellido, fecha_nacimiento) VALUES (?, ?, ?, ?, ?)";
@@ -67,11 +101,18 @@ public class PacienteDaoImpl implements PacienteDao {
                     p.setId(rs.getLong(1));
                 }
             }
-
         }
         return p;
     }
 
+    /**
+     * Busca un paciente por su ID primario.
+     * Realiza un {@code LEFT JOIN} para traer también su historia clínica si existe y está activa.
+     *
+     * @param id El identificador único del paciente.
+     * @return Un {@link Optional} con el paciente si se encuentra y no está eliminado lógico.
+     * @throws SQLException Si ocurre un error en la consulta.
+     */
     @Override
     public Optional<Paciente> findById(Long id) throws SQLException {
         String sql = "SELECT p.*, " +
@@ -94,6 +135,13 @@ public class PacienteDaoImpl implements PacienteDao {
         return Optional.empty();
     }
 
+    /**
+     * Recupera todos los pacientes activos del sistema.
+     * Incluye la carga ansiosa de sus historias clínicas.
+     *
+     * @return Una lista de pacientes activos.
+     * @throws SQLException Si ocurre un error en la consulta.
+     */
     @Override
     public List<Paciente> getAll() throws SQLException {
         String sql = "SELECT p.*, " +
@@ -108,7 +156,7 @@ public class PacienteDaoImpl implements PacienteDao {
         List<Paciente> pacientesEncontrados = new ArrayList<>();
 
         try (PreparedStatement ps = conn.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery()){
+             ResultSet rs = ps.executeQuery()){
             while (rs.next()){
                 Paciente p = map(rs);
                 pacientesEncontrados.add(p);
@@ -117,6 +165,13 @@ public class PacienteDaoImpl implements PacienteDao {
         return pacientesEncontrados;
     }
 
+    /**
+     * Actualiza los datos modificables de un paciente existente.
+     * No afecta a la Historia Clínica asociada.
+     *
+     * @param p El paciente con los datos actualizados.
+     * @throws SQLException Si ocurre un error durante la actualización.
+     */
     @Override
     public void update(Paciente p) throws SQLException {
         String sql = "UPDATE paciente SET eliminado=?, dni=?, nombre=?, apellido=?, fecha_nacimiento=? WHERE id = ?";
@@ -135,16 +190,31 @@ public class PacienteDaoImpl implements PacienteDao {
         }
     }
 
+    /**
+     * Realiza una baja lógica del paciente.
+     * Establece el campo {@code eliminado} a {@code true}.
+     *
+     * @param id El ID del paciente a dar de baja.
+     * @throws SQLException Si ocurre un error en la actualización.
+     */
     @Override
     public void delete(Long id) throws SQLException {
         String sql = "UPDATE paciente SET eliminado=? WHERE id=?";
         try (PreparedStatement ps = conn.prepareStatement(sql)){
-            ps.setInt(1, 1);
+            ps.setBoolean(1, true);
             ps.setLong(2, id);
             ps.executeUpdate();
         }
     }
 
+    /**
+     * Busca un paciente por su número de documento (DNI).
+     * Incluye carga ansiosa de la Historia Clínica.
+     *
+     * @param dni El DNI a buscar.
+     * @return Un {@link Optional} con el paciente si existe.
+     * @throws SQLException Si ocurre un error en la consulta.
+     */
     @Override
     public Optional<Paciente> findByDni(String dni) throws SQLException {
         String sql = "SELECT p.*, " +
