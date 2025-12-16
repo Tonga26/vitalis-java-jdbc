@@ -29,6 +29,9 @@ public class AppMenu {
                     case 1:
                         menuHandler.crearPaciente();
                         break;
+                    case 2:
+                        menuHandler.listarPacientes();
+                        break;
                     case 0:
                         System.out.println("Saliendo...");
                         running = false;

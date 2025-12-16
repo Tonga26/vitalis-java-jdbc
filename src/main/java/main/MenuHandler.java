@@ -7,6 +7,7 @@ import service.PacienteService;
 import model.HistoriaClinica.GrupoSanguineo;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Scanner;
 
 public class MenuHandler {
@@ -65,9 +66,46 @@ public class MenuHandler {
         }
     }
 
+    public void listarPacientes(){
+        try {
+            List<Paciente> pacientes = pacienteService.getAll();
+            if (pacientes.isEmpty()) {
+                System.out.println("⚠ No hay pacientes registrados.");
+                return;
+            }
+
+            String format = "| %-4s | %-10s | %-15s | %-15s | %-12s | %-5s |%n";
+            String line   = "+------+------------+-----------------+-----------------+--------------+-------+";
+
+            System.out.println("\n=== LISTADO DE PACIENTES ===");
+            System.out.println(line);
+            System.out.format(format, "ID", "DNI", "NOMBRE", "APELLIDO", "NRO HC", "GRUPO");
+            System.out.println(line);
+
+            for (Paciente p : pacientes){
+                String nroHc = (p.getHistoriaClinica() != null ? p.getHistoriaClinica().getNroHistoria() : "S/D");
+                String grupo = (p.getHistoriaClinica() != null && p.getHistoriaClinica().getGrupoSanguineo() != null
+                        ? p.getHistoriaClinica().getGrupoSanguineo().db() : "-");
+
+                System.out.printf(format,
+                        p.getId(),
+                        p.getDni(),
+                        p.getNombre(),
+                        p.getApellido(),
+                        nroHc,
+                        grupo
+                );
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error al listar pacientes: " + e.getMessage());
+        }
+    }
+
     private String leerTexto(String mensaje) {
         System.out.print(mensaje);
         String texto = scanner.nextLine();
         return texto.trim();
     }
+
 }
