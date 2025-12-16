@@ -21,22 +21,22 @@ public class MenuHandler {
         this.hcService = hcService;
     }
 
-    public void crearPaciente(){
+    public void createPatient(){
         try {
             System.out.println("== ALTA DE NUEVO PACIENTE ==");
-            String nombre = leerTexto("Nombre: ");
-            String apellido = leerTexto("Apellido: ");
-            String dni = leerTexto("DNI: ");
-            String fechaTexto = leerTexto("Fecha Nacimiento (formato YYYY-MM-DD): ");
+            String nombre = readInput("Nombre: ");
+            String apellido = readInput("Apellido: ");
+            String dni = readInput("DNI: ");
+            String fechaTexto = readInput("Fecha Nacimiento (formato YYYY-MM-DD): ");
             LocalDate fechaNacimiento = LocalDate.parse(fechaTexto);
 
             System.out.println("== HISTORIA CLÍNICA (Obligatoria) ==");
-            String nroHc = leerTexto("Número de historia clínica: ");
-            String grupoTexto = leerTexto("Grupo sanguíneo (A+,A-,B+,B-,AB+,AB-,O+,O- o vacío): ");
+            String nroHc = readInput("Número de historia clínica: ");
+            String grupoTexto = readInput("Grupo sanguíneo (A+,A-,B+,B-,AB+,AB-,O+,O- o vacío): ");
             GrupoSanguineo grupo = (grupoTexto.isBlank()) ? null : GrupoSanguineo.fromDb(grupoTexto);
-            String ant = leerTexto("Antecedentes (opcional): ");
-            String med = leerTexto("Medicación actual (opcional): ");
-            String obs = leerTexto("Observaciones (opcional): ");
+            String ant = readInput("Antecedentes (opcional): ");
+            String med = readInput("Medicación actual (opcional): ");
+            String obs = readInput("Observaciones (opcional): ");
 
             Paciente p = new Paciente();
             p.setNombre(nombre);
@@ -66,7 +66,7 @@ public class MenuHandler {
         }
     }
 
-    public void listarPacientes(){
+    public void listPatients(){
         try {
             List<Paciente> pacientes = pacienteService.getAll();
             if (pacientes.isEmpty()) {
@@ -79,7 +79,7 @@ public class MenuHandler {
 
             System.out.println("\n=== LISTADO DE PACIENTES ===");
             System.out.println(line);
-            System.out.format(format, "ID", "DNI", "NOMBRE", "APELLIDO", "NRO HC", "GRUPO");
+            System.out.printf(format, "ID", "DNI", "NOMBRE", "APELLIDO", "NRO HC", "GRUPO");
             System.out.println(line);
 
             for (Paciente p : pacientes){
@@ -102,7 +102,7 @@ public class MenuHandler {
         }
     }
 
-    private String leerTexto(String mensaje) {
+    private String readInput(String mensaje) {
         System.out.print(mensaje);
         String texto = scanner.nextLine();
         return texto.trim();

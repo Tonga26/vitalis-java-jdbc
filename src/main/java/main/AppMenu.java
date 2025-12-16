@@ -27,10 +27,10 @@ public class AppMenu {
 
                 switch (opcion) {
                     case 1:
-                        menuHandler.crearPaciente();
+                        menuHandler.createPatient();
                         break;
                     case 2:
-                        menuHandler.listarPacientes();
+                        menuHandler.listPatients();
                         break;
                     case 0:
                         System.out.println("Saliendo...");
