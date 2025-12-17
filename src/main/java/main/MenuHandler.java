@@ -104,21 +104,19 @@ public class MenuHandler {
         }
     }
 
-    public void  findPatientByDni() {
+    public void findPatientByDni() {
         try {
-            System.out.println("\n=== BUSCAR PACIENTE ===");
-            String dni = readInput("Ingrese el dni del paciente a buscar: ");
+            String dni = readInput("Ingrese DNI a buscar: ");
+            Optional<Paciente> opt = pacienteService.findByDni(dni);
 
-            Optional<Paciente> posiblePaciente = pacienteService.findByDni(dni);
-
-            if (posiblePaciente.isPresent()) {
-                Paciente p = posiblePaciente.get();
-                printPatientDetails(p);
+            if (opt.isPresent()) {
+                printPatientDetails(opt.get());
             } else {
-                System.out.println("⚠ No se encontró nadie con DNI: " + dni);
+                System.out.println("\n⚠ No se encontró ningún paciente con DNI: " + dni);
             }
-        } catch (Exception e){
-            MenuDisplay.printError("Error al buscar en la base de datos: " + e.getMessage());
+
+        } catch (Exception e) {
+            MenuDisplay.printError("Error al buscar paciente: " + e.getMessage());
         }
     }
 
@@ -129,20 +127,31 @@ public class MenuHandler {
     }
 
     private void printPatientDetails(Paciente p) {
-        String nroHc = (p.getHistoriaClinica() != null ? p.getHistoriaClinica().getNroHistoria() : "S/D");
-        String grupo = (p.getHistoriaClinica() != null && p.getHistoriaClinica().getGrupoSanguineo() != null
-                ? p.getHistoriaClinica().getGrupoSanguineo().db() : "-");
+        HistoriaClinica h = p.getHistoriaClinica();
 
-        System.out.println("=".repeat(40) + "\n" + " DATOS DEL PACIENTE\n" + "=".repeat(40));
-        System.out.println("ID: " + p.getId());
-        System.out.println("Dni: " + p.getDni());;
-        System.out.println("Nombre: " + p.getNombre());
-        System.out.println("Apellido: " + p.getApellido());
-        System.out.println("-".repeat(40));
-        System.out.println("HISTORIA CLÍNICA \n");
-        System.out.println("Número: " + nroHc);
-        System.out.println(" Grupo sanguíneo: " + grupo);
-        System.out.println("=".repeat(40));
+        System.out.println("\n" + "═".repeat(12) + " FICHA DEL PACIENTE " + "═".repeat(12));
+
+        System.out.printf(" %-20s: %s %s%n", "Nombre Completo", p.getNombre(), p.getApellido());
+        System.out.printf(" %-20s: %s%n", "DNI", p.getDni());
+
+        String fecha = (p.getFechaNacimiento() != null) ? p.getFechaNacimiento().toString() : "No registrada";
+        System.out.printf(" %-20s: %s%n", "Fecha Nacimiento", fecha);
+
+        System.out.println("─".repeat(14) + " DATOS CLÍNICOS " + "─".repeat(14));
+
+        if (h != null) {
+            String nroHc = (h.getNroHistoria() != null) ? h.getNroHistoria() : "S/D";
+            String grupo = (h.getGrupoSanguineo() != null) ? h.getGrupoSanguineo().db() : "-";
+            String obs   = (h.getObservaciones() != null) ? h.getObservaciones() : "-";
+
+            System.out.printf(" %-20s: %s%n", "Nro. Historia", nroHc);
+            System.out.printf(" %-20s: %s%n", "Grupo Sanguíneo", grupo);
+            System.out.printf(" %-20s: %s%n", "Observaciones", obs);
+        } else {
+            System.out.println(" ⚠ El paciente no tiene Historia Clínica asociada.");
+        }
+
+        System.out.println("═".repeat(44));
     }
 
 }

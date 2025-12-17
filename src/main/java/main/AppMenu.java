@@ -32,6 +32,9 @@ public class AppMenu {
                     case 2:
                         menuHandler.listPatients();
                         break;
+                    case 3:
+                        menuHandler.findPatientByDni();
+                        break;
                     case 0:
                         System.out.println("Saliendo...");
                         running = false;
