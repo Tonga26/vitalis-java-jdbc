@@ -12,17 +12,39 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
+/**
+ * Clase responsable de gestionar la interacción con el usuario en la consola.
+ * <p>
+ * Actúa como un controlador que recibe las entradas del usuario, las valida
+ * y delega la lógica de negocio a los servicios correspondientes ({@link PacienteService}
+ * y {@link HistoriaClinicaService}).
+ * </p>
+ */
 public class MenuHandler {
     private Scanner scanner;
     private PacienteService pacienteService;
     private HistoriaClinicaService hcService;
 
+    /**
+     * Constructor que inyecta las dependencias necesarias.
+     *
+     * @param scanner         El objeto Scanner para leer la entrada de la consola.
+     * @param pacienteService Servicio para operaciones relacionadas con Pacientes.
+     * @param hcService       Servicio para operaciones relacionadas con Historias Clínicas.
+     */
     public MenuHandler(Scanner scanner, PacienteService pacienteService, HistoriaClinicaService hcService) {
         this.scanner = scanner;
         this.pacienteService = pacienteService;
         this.hcService = hcService;
     }
 
+    /**
+     * Guía al usuario a través del proceso de creación de un nuevo Paciente.
+     * <p>
+     * Solicita datos personales y datos obligatorios para la Historia Clínica inicial.
+     * Maneja excepciones de formato de fecha y validaciones de negocio.
+     * </p>
+     */
     public void createPatient(){
         try {
             System.out.println("== ALTA DE NUEVO PACIENTE ==");
@@ -68,6 +90,13 @@ public class MenuHandler {
         }
     }
 
+    /**
+     * Muestra un listado tabular de todos los pacientes registrados.
+     * <p>
+     * Imprime ID, DNI, Nombre, Apellido, Nro de Historia y Grupo Sanguíneo.
+     * Si no hay pacientes, muestra un mensaje de advertencia.
+     * </p>
+     */
     public void listPatients(){
         try {
             List<Paciente> pacientes = pacienteService.getAll();
@@ -104,6 +133,10 @@ public class MenuHandler {
         }
     }
 
+    /**
+     * Solicita un DNI al usuario y busca al paciente correspondiente.
+     * Si lo encuentra, muestra su ficha detallada; si no, informa el error.
+     */
     public void findPatientByDni() {
         try {
             String dni = readInput("Ingrese DNI a buscar: ");
@@ -120,6 +153,13 @@ public class MenuHandler {
         }
     }
 
+    /**
+     * Gestiona la actualización de datos personales de un paciente.
+     * <p>
+     * Permite al usuario dejar campos vacíos (ENTER) para mantener los valores actuales.
+     * Valida la existencia del ID antes de proceder.
+     * </p>
+     */
     public void updatePatient() {
         try {
             String idStr = readInput("Ingrese el ID del paciente a actualizar: ");
@@ -166,6 +206,14 @@ public class MenuHandler {
         }
     }
 
+    /**
+     * Gestiona la actualización de la Historia Clínica de un paciente.
+     * <p>
+     * Muestra los valores permitidos para el Grupo Sanguíneo antes de solicitar la entrada.
+     * Permite edición parcial (dejando campos vacíos).
+     * Actualiza la persistencia a través de {@link HistoriaClinicaService}.
+     * </p>
+     */
     public void updateClinicalHistory(){
         try {
             String idStr = readInput("Ingrese el ID del Paciente cuya Historia Clínica desea actualizar: ");
@@ -226,6 +274,14 @@ public class MenuHandler {
         }
     }
 
+    /**
+     * Muestra un listado detallado (tipo ficha) de todas las historias clínicas.
+     * <p>
+     * Recupera el nombre del paciente asociado a cada historia mediante su ID para
+     * dar contexto al reporte. Muestra textos largos (antecedentes, medicación)
+     * en bloques completos.
+     * </p>
+     */
     public void listClinicalHistories() {
         try {
             System.out.println("\n=== LISTADO COMPLETO DE HISTORIAS CLÍNICAS ===");
@@ -276,6 +332,12 @@ public class MenuHandler {
         }
     }
 
+    /**
+     * Gestiona el proceso de eliminación (baja lógica) de un paciente.
+     * <p>
+     * Solicita confirmación explícita del usuario antes de proceder.
+     * </p>
+     */
     public void deletePatient() {
         try {
             System.out.println("\n=== ELIMINAR PACIENTE ===");
@@ -308,12 +370,24 @@ public class MenuHandler {
         }
     }
 
+    /**
+     * Método auxiliar para leer una línea de texto desde la consola.
+     *
+     * @param mensaje El mensaje (prompt) a mostrar al usuario antes de leer.
+     * @return El texto ingresado por el usuario, sin espacios al inicio ni al final.
+     */
     private String readInput(String mensaje) {
         System.out.print(mensaje);
         String texto = scanner.nextLine();
         return texto.trim();
     }
 
+    /**
+     * Método auxiliar para imprimir los detalles de un paciente y su historia clínica
+     * en formato de ficha.
+     *
+     * @param p El objeto Paciente a mostrar.
+     */
     private void printPatientDetails(Paciente p) {
         HistoriaClinica h = p.getHistoriaClinica();
 
