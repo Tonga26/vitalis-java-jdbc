@@ -38,6 +38,9 @@ public class AppMenu {
                     case 4:
                         menuHandler.updatePatient();
                         break;
+                    case 7:
+                        menuHandler.deletePatient();
+                        break;
                     case 0:
                         System.out.println("Saliendo...");
                         running = false;

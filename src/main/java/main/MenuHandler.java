@@ -167,6 +167,38 @@ public class MenuHandler {
         }
     }
 
+    public void deletePatient() {
+        try {
+            System.out.println("\n=== ELIMINAR PACIENTE ===");
+            String idStr = readInput("Ingrese el ID del paciente a eliminar: ");
+            Long id = Long.parseLong(idStr);
+
+            Optional<Paciente> opt = pacienteService.findById(id);
+
+            if (opt.isEmpty()) {
+                MenuDisplay.printError("No existe ningún paciente con el ID: " + id);
+                return;
+            }
+
+            Paciente p = opt.get();
+
+            System.out.println("⚠ VA A ELIMINAR A: " + p.getNombre() + " " + p.getApellido() + " (DNI: " + p.getDni() + ")");
+            String confirmacion = readInput("¿Está seguro? Esta acción no se puede deshacer (s/n): ");
+
+            if (confirmacion.equalsIgnoreCase("s")) {
+                pacienteService.delete(id);
+                System.out.println("✅ Paciente eliminado correctamente.");
+            } else {
+                System.out.println("🛑 Operación cancelada.");
+            }
+
+        } catch (NumberFormatException e) {
+            MenuDisplay.printError("El ID debe ser un número válido.");
+        } catch (Exception e) {
+            MenuDisplay.printError("Error al intentar eliminar: " + e.getMessage());
+        }
+    }
+
     private String readInput(String mensaje) {
         System.out.print(mensaje);
         String texto = scanner.nextLine();
