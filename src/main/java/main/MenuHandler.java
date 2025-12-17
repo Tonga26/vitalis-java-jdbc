@@ -8,6 +8,7 @@ import model.HistoriaClinica.GrupoSanguineo;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -117,6 +118,52 @@ public class MenuHandler {
 
         } catch (Exception e) {
             MenuDisplay.printError("Error al buscar paciente: " + e.getMessage());
+        }
+    }
+
+    public void updatePatient() {
+        try {
+            String idStr = readInput("Ingrese el ID del paciente a actualizar: ");
+            Long pacienteID = Long.parseLong(idStr);
+
+            Optional<Paciente> opt = pacienteService.findById(pacienteID);
+
+            if (opt.isEmpty()) {
+                MenuDisplay.printError("No se encontró un Paciente con ID: " + pacienteID);
+                return;
+            }
+
+            Paciente p = opt.get();
+            System.out.println("\n════════ EDITANDO PACIENTE (ID: " + p.getId() + ") ════════");
+            System.out.println("(Deje vacío y presione ENTER para mantener el valor actual)\n");
+
+            String nombre = readInput("Nuevo Nombre [" + p.getNombre() + "]: ");
+            if (!nombre.isBlank()) p.setNombre(nombre);
+
+            String apellido = readInput("Nuevo Apellido [" + p.getApellido() + "]: ");
+            if (!apellido.isBlank()) p.setApellido(apellido);
+
+            String dni = readInput("Nuevo DNI [" + p.getDni() + "]: ");
+            if (!dni.isBlank()) p.setDni(dni);
+
+            String fechaActual = (p.getFechaNacimiento() != null) ? p.getFechaNacimiento().toString() : "N/A";
+            String nuevaFechaStr = readInput("Nueva Fecha Nac (YYYY-MM-DD) [" + fechaActual + "]: ");
+
+            if (!nuevaFechaStr.isBlank()) {
+                try {
+                    p.setFechaNacimiento(LocalDate.parse(nuevaFechaStr));
+                } catch (DateTimeParseException e) {
+                    System.out.println("❌ Fecha inválida. Se conservará la fecha anterior: " + fechaActual);
+                }
+            }
+
+            pacienteService.update(p);
+            System.out.println("\n✅ ¡Paciente actualizado con éxito!");
+
+        } catch (NumberFormatException e) {
+            MenuDisplay.printError("El ID debe ser un número válido.");
+        } catch (Exception e) {
+            MenuDisplay.printError("Error al actualizar paciente: " + e.getMessage());
         }
     }
 
